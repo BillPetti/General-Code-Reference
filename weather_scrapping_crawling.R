@@ -17,7 +17,7 @@ rating <- lego_movie %>%
   as.numeric()
 rating
 
-#scrape all data from the weather table for Cherry Hill, NJ for February 17, 2015
+#scrape all data that is a .wx-value from the weather table for Cherry Hill, NJ for February 17, 2015
 CH_weather_test <- html("http://www.wunderground.com/history/airport/KVAY/2015/2/17/DailyHistory.html?req_city=Cherry+Hill&req_state=NJ&req_statename=New+Jersey&reqdb.zip=08002&reqdb.magic=1&reqdb.wmo=99999")
 
 ave_temp <- CH_weather_test %>% 
