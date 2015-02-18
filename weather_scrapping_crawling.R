@@ -1,11 +1,9 @@
 #Crawling and scrappig weather data in R
 
-#install and load rvest from github as well as other necessary packages
+#install and load the necessary packages
 
-library(devtools)
-library(magrittr)
-install_github("hadley/rvest")
 library(rvest)
+library(plyr)
 
 #test to see if the packages loaded correctly - 7.X should print
 
@@ -35,4 +33,19 @@ ave_temp <- CH_weather_test %>%
 	html_text() %>%
     as.numeric()
 ave_temp
+
+#set date range
+dates <- seq(as.Date("2007-05-20"), as.Date("2015-02-17"), by = "day")
+
+#Format dates
+
+datez <- format(dates, "%m/%d/%Y")
+
+#Construct urls
+
+urlz <- paste0("http://www.wunderground.com/history/airport/KVAY/", datez, "/DailyHistory.html?req_city=Cherry+Hill&req_state=NJ&req_statename=New+Jersey&reqdb.zip=08002&reqdb.magic=1&reqdb.wmo=99999&format=1")
+
+#Then use a little plyr magic to read each url and combine
+
+df <- plyr::ldply(urlz)
 
