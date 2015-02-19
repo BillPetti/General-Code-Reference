@@ -4,6 +4,7 @@
 
 library(rvest)
 library(plyr)
+library(magrittr)
 
 #test to see if the packages loaded correctly - 7.X should print
 
@@ -45,7 +46,10 @@ datez <- format(dates, "%m/%d/%Y")
 
 urlz <- paste0("http://www.wunderground.com/history/airport/KVAY/", datez, "/DailyHistory.html?req_city=Cherry+Hill&req_state=NJ&req_statename=New+Jersey&reqdb.zip=08002&reqdb.magic=1&reqdb.wmo=99999&format=1")
 
-#Then use a little plyr magic to read each url and combine
+#Then use plyr to read each url and combine
 
 df <- plyr::ldply(urlz)
+
+#rename url column to temp_urls
+colnames(df)<-"temp_urls"
 
