@@ -59,8 +59,9 @@ colnames(df)<-"temp_urls"
 ##Use the weatherData package to scrape data from Weather Underground (note: appears to be limited to 380 days of data at a time)
 
 #load packages
-library(weatherData)
-library(sqldf)
+library(weatherData) #to scrape daily weather data from Weather Underground
+library(sqldf) #to run SQL queries on the date
+library(plyr) #to reshape the data
 
 #create data frames for dates of interest, by year
 yr_2007 <- getSummarizedWeather("KVAY", "2007-05-20", "2007-12-31")
@@ -71,7 +72,21 @@ yr_2011 <- getSummarizedWeather("KVAY", "2011-01-01", "2011-12-31")
 yr_2012 <- getSummarizedWeather("KVAY", "2012-01-01", "2012-12-31")
 yr_2013 <- getSummarizedWeather("KVAY", "2013-01-01", "2013-12-31")
 yr_2014 <- getSummarizedWeather("KVAY", "2014-01-01", "2014-12-31")
-yr_2015 <- getSummarizedWeather("KVAY", "2015-01-01", "2015-02-18")
+yr_2015 <- getSummarizedWeather("KVAY", "2015-01-01", Sys.Date())
 
 #combine all data frames into a single data frame
 all_dates<-rbind(yr_2007,yr_2008, yr_2009, yr_2010, yr_2011, yr_2012, yr_2013, yr_2014, yr_2015)
+
+#sort all_dates by average temperature, ascending
+sort<-arrange(all_dates, Mean_TemperatureF)
+
+#reshape Date variable for querying
+all_dates$Month<-month(all_dates$Date)
+all_dates$Day<-day(all_dates$Date)
+all_dates$Year<-year(all_dates$Date) #three seperate numeric variables that can then be combined into one "new date" variable
+
+#create new table with Month, Day, Year split out and removing POSIXlt date column
+all_dates_2<-select(all_dates, Month, Day, Year, Max_TemperatureF, Mean_TemperatureF, Min_TemperatureF)
+
+all_dates$NewDate<-paste(all_dates_2$Month,all_dates_2$Day,sep='')
+all_dates$NewDate<-paste(all_dates_2$NewDate,all_dates_2$Year,sep='') #single, numeric new date variable
