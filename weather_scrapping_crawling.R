@@ -8,7 +8,7 @@ library(rvest)
 library(plyr)
 library(magrittr)
 
-#test to see if the packages loaded correctly - 7.X should print
+#test to see if the packages loaded correctly
 
 lego_movie <- html("http://www.imdb.com/title/tt1490017/")
 
@@ -56,7 +56,7 @@ df <- plyr::ldply(urlz)
 #rename url column to temp_urls
 colnames(df)<-"temp_urls"
 
-##Use the weatherData package to scrape data from Weather Underground (note: appears to be limited to 380 days of data at a time)
+##Use the weatherData package to scrape data from Weather Underground from 5-20-2007 through 2-18-2015 (note: appears to be limited to 380 days of data at a time)
 
 #load packages
 library(weatherData) #to scrape daily weather data from Weather Underground
