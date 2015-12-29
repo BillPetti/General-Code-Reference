@@ -90,3 +90,88 @@ all_dates_2<-select(all_dates, Month, Day, Year, Max_TemperatureF, Mean_Temperat
 
 all_dates$NewDate<-paste(all_dates_2$Month,all_dates_2$Day,sep='')
 all_dates$NewDate<-paste(all_dates_2$NewDate,all_dates_2$Year,sep='') #single, numeric new date variable
+
+### Another approach
+
+library(XML)
+library(dplyr)
+library(ggplot2)
+
+# test <- readHTMLTable("http://www.wunderground.com/history/airport/KVAY/2015/12/23/DailyHistory.html?req_city=Cherry+Hill&req_state=NJ&req_statename=New+Jersey&reqdb.zip=08002&reqdb.magic=1&reqdb.wmo=99999")
+# 
+# test[1]
+# 
+# test1 <- as.data.frame(test[1])
+# names(test1) <- c("Element", "Actual", "Average", "Records")
+# test1 <- select(test1, Element, Actual) %>% filter(Element == "Mean Temperature")
+
+# create grid for station, year, and day values
+
+# stations <- c("K12N", "KACY", "KBLM", "KCDW", "KNEL", "KMIV", "KMMU", "KVAY", "KEWR", "KSMQ", "KTEB", "KTTN", "KWWD", "KWRI")
+
+stations <- "KACY"
+
+years <- c(1945:2014)
+
+days <- c(23, 24, 25, 26)
+
+station_yrs <- expand.grid(stations, years, days)
+names(station_yrs) <- c("station", "year", "day")
+
+# create individual urls based on years and weather station
+
+# urls <- paste0("http://www.wunderground.com/history/airport/",station_yrs$station,"/",station_yrs$year, "/12/",station_yrs$day, "/DailyHistory.html")
+
+# urls <- as.data.frame(urls)
+
+do_scrape <- function(x, y, z) {
+  url <- paste0("http://www.wunderground.com/history/airport/",x,"/",y, "/12/",z, "/DailyHistory.html")
+  scrape <- readHTMLTable(url, stringsAsFactors = FALSE)
+  x <- as.data.frame(scrape[1])
+  x
+}
+
+results <- station_yrs %>% group_by(station, year, day) %>% do(do_scrape(.$station, .$year, .$day))
+results <- results[,c(1:7)]
+names(results) <- c("station", "year", "day", "element", "actual", "average", "record")
+reduced <- filter(results, element == "Mean Temperature" | element == "Max Temperature")
+reduced$date <- with(reduced, paste0("12-", day, "-", year))
+reduced$date <- as.Date(reduced$date, "%m-%d-%Y")
+reduced <- ungroup(reduced)
+Encoding(reduced$actual) <- "bytes"
+reduced$actual <- gsub('\xc2\xa0\xc2\xb0F', '' , reduced$actual)
+reduced$actual <- as.numeric(reduced$actual)
+
+#2015 data
+
+stations2015 <- "KACY"
+
+years2015 <- 2015
+
+days2015 <- c(23, 24, 25, 26)
+
+station_yrs_2015 <- expand.grid(stations2015, years2015, days2015)
+names(station_yrs_2015) <- c("station", "year", "day")
+
+results2015 <- station_yrs_2015 %>% group_by(station, year, day) %>% do(do_scrape(.$station, .$year, .$day))
+results2015 <- results2015[,c(1:7)]
+names(results2015) <- c("station", "year", "day", "element", "actual", "average", "record")
+reduced2015 <- filter(results2015, element == "Mean Temperature" | element == "Max Temperature")
+reduced2015$date <- with(reduced2015, paste0("12-", day, "-", year))
+reduced2015$date <- as.Date(reduced2015$date, "%m-%d-%Y")
+reduced2015 <- ungroup(reduced2015)
+Encoding(reduced2015$actual) <- "bytes"
+reduced2015$actual <- gsub('\xc2\xa0\xc2\xb0F', '' , reduced2015$actual)
+reduced2015$actual <- as.numeric(reduced2015$actual)
+
+# plot results
+
+data <- filter(reduced, element == "Mean Temperature")
+data$day <- factor(data$day, labels = c("Dec 23rd", "Dec 24th", "Dec 25th", "Dec 26th"))
+data_max <- data %>% group_by(day) %>% filter(actual == max(actual))
+data_2015 <- filter(reduced2015, element == "Mean Temperature")
+data_2015$day <- factor(data_2015$day, labels = c("Dec 23rd", "Dec 24th", "Dec 25th", "Dec 26th"))
+
+q <- ggplot(data, aes(year, actual)) + geom_point(fill="grey50", colour = "black", size = 4.2, pch = 21, alpha = .5) + geom_smooth() + facet_grid(~day) + xlab("Year") + ylab("Average Daily Temperature in Fahrenheit (Year)") + geom_point(data = data_max, fill="red", colour = "black", size = 4.2, pch = 21) + geom_point(data = data_2015, fill="green", colour = "black", size = 4.2, pch = 21) + ggtitle("Average Daily Temperature, December 23-26, 1945-2015: \nSouth Jersey Regional Airport (Lumberton, New Jersey) Weather Station") + theme_bw() + theme(text = element_text(family = "Georgia", face = "bold"), plot.title = element_text(color = "black", size = 16)) + geom_text(data = data_max, aes(label=paste0(actual,"\n(", year, ")")), family = "Georgia", fontface = 2, size = 4.5, hjust=0.7, vjust=-0.35) + geom_text(data = data_2015, aes(label=actual), family = "Georgia", fontface = 2, size = 4.5, hjust=0.5, vjust=-1)
+
+q
