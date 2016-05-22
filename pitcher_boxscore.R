@@ -1,6 +1,7 @@
 # function for creatng a boxscore for pitcher stats from MLBAM's Game Day application using the  a game's boxscore.xml
 
 require(XML)
+require(dplyr)
 
 pitcher_boxscore <- function(x) {
   url <- x
@@ -22,7 +23,7 @@ pitcher_boxscore <- function(x) {
   names[28] <- "win_loss"
   names(away_pitchers) <- names
   names(home_pitchers) <- names
-  pitchers <- rbind(away_pitchers, home_pitchers)
+  pitchers <- rbind(away_pitchers, home_pitchers) %>% select(-win_loss)
   pitchers
 }
 
