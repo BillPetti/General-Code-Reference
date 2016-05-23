@@ -1,4 +1,4 @@
-# function for creatng a boxscore for pitcher stats from MLBAM's Game Day application using the  a game's boxscore.xml
+# function for creatng a boxscore for pitcher stats from MLBAM's Game Day application using a game's boxscore.xml
 
 require(XML)
 require(dplyr)
