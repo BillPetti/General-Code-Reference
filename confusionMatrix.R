@@ -1,3 +1,6 @@
+# Code to create a comprehensive confusion matrix and evaluation criteria for 
+# classification models. 
+
 confusionMatrix <- function(df = NULL, model = NULL, x = NULL, y = NULL) {
   if (is.null(df)) {
     df <- data.frame(fits = predict(model, x), actuals = y)
