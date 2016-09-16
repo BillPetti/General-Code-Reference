@@ -5,7 +5,7 @@
 
 # set workding directory where you want the list of packages exported to and where you will access an existing list for reinstall
 
-setwd("/Users/williampetti/General-Code-Reference")
+setwd("/Users/williampetti/General-Code-Reference") # my directory, change to your particular directory
 
 # create list of installed packages 
 
