@@ -20,6 +20,7 @@ load("installed_old.rda")
 tmp <- installed.packages()
 installedpkgs.new <- as.vector(tmp[is.na(tmp[,"Priority"]), 1])
 missing <- setdiff(installedpkgs, installedpkgs.new)
+missing
 system.time(install.packages(missing))
 system.time(update.packages())
 
@@ -28,6 +29,7 @@ system.time(update.packages())
 tmp <- installed.packages()
 installedpkgs.new <- as.vector(tmp[is.na(tmp[,"Priority"]), 1])
 still_missing <- setdiff(installedpkgs, installedpkgs.new)
+still_missing
 
 # export still_missing in case you need to refer to it later for a manual reinstall
 
