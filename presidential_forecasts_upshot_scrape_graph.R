@@ -70,11 +70,11 @@ votes_by_prob_rep <- cast_test_rep %>%
 bind_party_prob <- rbind(votes_by_prob_dem, votes_by_prob_rep) %>%
   ungroup()
 
-prob_levels <- unique(bind_party_prob$straight_average)
-
-bind_party_prob$straight_average %<>% factor(levels = prob_levels) 
-
-levels(bind_party_prob$straight_average)
+# prob_levels <- unique(bind_party_prob$straight_average)
+# 
+# bind_party_prob$straight_average %<>% factor(levels = prob_levels) 
+# 
+# levels(bind_party_prob$straight_average)
 
 bind_party_prob %>%
   ggplot(aes(straight_average, cummulative_ev, group = 1)) + 
