@@ -90,9 +90,9 @@ bind_party_prob %>%
   facet_wrap(~party_code, scales = "free_x") +
   scale_x_reverse(labels = percent, breaks = c(0, .2, .4, .6, .8, 1)) +
   scale_color_manual(values = party_palette, guide = FALSE) + 
-  #annotate("text", x = .99, y = 270, hjust = -2, vjust = -.5) +
   ggtitle("\nCummulative Electoral Votes by Probability of Party Win (State-Level)\n") +
-  xlab("\nProbability of Party Win (State-Level: Average of Major Forecasts)") + 
+  xlab("\nProbability of Candidate Win (State-Level: Average of Major Forecasts)") +
   ylab("\nCummulative Electoral Votes\n") +
+  #labs(subtitle = "This graph compares the cummulative electoral votes for each candidates based on the probability that the candidate will win each state", caption = "Data acquired from The Upshot (http://www.nytimes.com/interactive/2016/upshot/presidential-polls-forecast.html?_r=0)\nCreated by Bill Petti") + 
   theme_bp_grey() + 
   theme(axis.text.x = element_text(size = 8), plot.title = element_text(size = 22), strip.text.x = element_text(face = "bold", size = 14))
