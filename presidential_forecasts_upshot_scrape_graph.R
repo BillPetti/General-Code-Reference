@@ -44,10 +44,6 @@ pres_forecasts <- function() {
   
   data_melt$prob_rep_win <- 1 - data_melt$prob_dem_win
   
-  data_melt$date <- Sys.Date()
-  
-  write.csv(data_melt, paste0("all_presidential_forecasts_", Sys.Date(), ".csv"), row.names = FALSE)
-  
   cast_data_dem <- data_melt %>%
     filter(!is.na(prob_dem_win)) %>%
     select(-party, -probability_win, -chance, -prob_rep_win) %>%
@@ -77,11 +73,17 @@ pres_forecasts <- function() {
   
   bind_party_prob$date <- Sys.Date()
   
+  data_melt$date <- Sys.Date()
+  
+  # write out data
+  
+  write.csv(data_melt, paste0("all_presidential_forecasts_", Sys.Date(), ".csv"), row.names = FALSE)
+  
   write.csv(bind_party_prob, paste0("binded_ave_forecasts_party_", Sys.Date(), ".csv"), row.names = FALSE)
   
-  party_palette <- c("Democrat" = "#0040ff", "Republican" = "#ff0000")
-  
   # plot the data
+  
+  party_palette <- c("Democrat" = "#0040ff", "Republican" = "#ff0000")
   
   # party's faceted 
   
@@ -93,7 +95,7 @@ pres_forecasts <- function() {
     facet_wrap(~party_code, scales = "free_x") +
     scale_x_reverse(labels = percent, breaks = seq(from = 0, to = 1, by = .1)) +
     scale_color_manual(values = party_palette, guide = FALSE) + 
-    ggtitle("\nCummulative Electoral Votes by Probability of Party Win (State-Level)\n") +
+    ggtitle(paste0("\nCummulative Electoral Votes by Probability of Party Win (State-Level): ", format(Sys.Date(), "%B %d, %Y"), "\n")) +
     xlab("\nProbability of Party Win (State-Level: Average of Major Forecasts)") +
     ylab("\nCummulative Electoral Votes\n") +
     #labs(subtitle = "This graph compares the cummulative electoral votes for each candidates based on the probability that the candidate will win each state", caption = "Data acquired from The Upshot (http://www.nytimes.com/interactive/2016/upshot/presidential-polls-forecast.html?_r=0)\nCreated by Bill Petti") + 
@@ -112,7 +114,7 @@ pres_forecasts <- function() {
     #facet_wrap(~party_code, scales = "free_x") +
     scale_x_reverse(labels = percent, breaks = seq(from = 0, to = 1, by = .1)) +
     scale_color_manual(values = party_palette, "Party") + 
-    ggtitle("\nCummulative Electoral Votes by Probability of Party Win (State-Level)\n") +
+    ggtitle(paste0("\nCummulative Electoral Votes by Probability of Party Win (State-Level): ", format(Sys.Date(), "%B %d, %Y"), "\n")) +
     xlab("\nProbability of Party Win (State-Level: Average of Major Forecasts)") +
     ylab("\nCummulative Electoral Votes\n") +
     #labs(subtitle = "This graph compares the cummulative electoral votes for each candidates based on the probability that the candidate will win each state", caption = "Data acquired from The Upshot (http://www.nytimes.com/interactive/2016/upshot/presidential-polls-forecast.html?_r=0)\nCreated by Bill Petti") + 
