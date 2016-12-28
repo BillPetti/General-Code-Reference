@@ -1,6 +1,5 @@
 ---
 title: "2017 Ocean City Rentals"
-author: "Bill Petti"
 output: html_document
 keep_md: yes
 
@@ -9,6 +8,8 @@ keep_md: yes
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
+
+Results only include houses with 2-3 bathrooms and 4 bedrooms between $3,000 and $4,400 for the week of July 29th through August 5th.
 
 ```{r}
 require(tidyverse)
@@ -158,5 +159,5 @@ results_all <- rbind(results, results2, results3) %>%
   select(block, number, street, floor, price, `direction facing`, address, urls) %>%
   arrange(block, number) 
 
-datatable(results_all, filter = "top", options = list(pageLength = 200))
+datatable(results_all, filter = "top", options = list(pageLength = 100, autoWidth = FALSE))
 ```
