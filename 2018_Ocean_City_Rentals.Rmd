@@ -19,137 +19,74 @@ require(XML)
 require(magrittr)
 require(DT)
 
-url <- "http://www.bergerrealty.com/rental/search.html?week=27&nweek=1&beds=7&bath=4&ulimit=0&minprice=3000&maxprice=3500&sortby=1&limit=100&year=2018"
+get_OC_rental_listings <- function(week, year, min_price = 3000, max_price = 3499, date_string = "July 07, 2018 to July 14, 2018") {
+  
+  url <- paste0("http://www.bergerrealty.com/rental/search.html?week=", week, "&nweek=1&beds=7&bath=4&ulimit=0&minprice=", min_price, "&maxprice=", max_price, "&sortby=1&limit=100&year=", year)
+  
+  geo <- read_html(url) %>%
+    html_nodes(".geo") %>%
+    html_text() %>%
+    gsub(pattern = date_string, 
+        replacement = "") %>%
+    data_frame()
 
-geo <- read_html(url) %>%
-  html_nodes(".geo") %>%
-  html_text() %>%
-  gsub(pattern = "July 07, 2018 to July 14, 2018", 
-       replacement = "") %>%
-  data_frame()
+  price <- read_html(url) %>%
+    html_nodes(".price") %>%
+    html_text() %>%
+    data_frame() 
 
-price <- read_html(url) %>%
-  html_nodes(".price") %>%
-  html_text() %>%
-  data_frame() 
+  html <- htmlParse(url) %>%
+    xpathSApply("//a/@href") %>%
+    data_frame()
+  colnames(html) <- "urls"
+  
+  html <- html %>%
+    filter(grepl("rental/[0-9]", urls)) %>%
+    filter(!grepl("plus", urls)) %>%
+    filter(!grepl("facebook", urls)) %>%
+    filter(!grepl("twitter", urls)) %>%
+    mutate(urls = paste0("http://www.bergerrealty.com", .$urls)) %>%
+    mutate(urls = gsub("&beds.*", "", .$urls))
+  
+  results <- cbind(geo, price) 
+  colnames(results) <-  c("address", "price")
+  number <- sapply(strsplit(results$address, " "), function(x) x[1])
+  street <- sapply(strsplit(results$address, " "), function(x) x[2])
+  floor <- sapply(strsplit(results$address, " "), function(x) x[4])
+  
+  results <- cbind(results, number, street, floor, html)
+  
+  results$number <- as.integer(as.character(number))
+  results$block <- ifelse(nchar(results$number) == 3, substr(results$number, 1,1), substr(results$number, 1,2)) %>%
+    as.integer()
+  
+  results$price <- gsub(x = results$price, pattern = "\\$", replacement = "") %>%
+    as.numeric()
+  
+  results <- results %>%
+    select(block, number, street, floor, price, address, urls)
+  
+  return(results)
+}
 
-html <- htmlParse(url) %>%
-  xpathSApply("//a/@href") %>%
-  data_frame()
-colnames(html) <- "urls"
+week_num <- 27
+  
+year_num <- 2018
 
-html <- html %>%
-  filter(grepl("rental/[0-9]", urls)) %>%
-  filter(!grepl("plus", urls)) %>%
-  filter(!grepl("facebook", urls)) %>%
-  filter(!grepl("twitter", urls)) %>%
-  mutate(urls = paste0("http://www.bergerrealty.com", .$urls)) %>%
-  mutate(urls = gsub("&beds.*", "", .$urls))
+results <- get_OC_rental_listings(week = week_num, 
+                                  year = year_num, 
+                                  min_price = 3000, 
+                                  max_price = 3499)
 
-results <- cbind(geo, price) 
-colnames(results) <-  c("address", "price")
-number <- sapply(strsplit(results$address, " "), function(x) x[1])
-street <- sapply(strsplit(results$address, " "), function(x) x[2])
-floor <- sapply(strsplit(results$address, " "), function(x) x[4])
+results2 <- get_OC_rental_listings(week = week_num, 
+                                  year = year_num, 
+                                  min_price = 3500, 
+                                  max_price = 3999)
 
-results <- cbind(results, number, street, floor, html)
-
-results$number <- as.integer(as.character(number))
-results$block <- ifelse(nchar(results$number) == 3, substr(results$number, 1,1), substr(results$number, 1,2)) %>%
-  as.integer()
-
-results$price <- gsub(x = results$price, pattern = "\\$", replacement = "") %>% as.numeric()
-
-results <- results %>%
-  select(block, number, street, floor, price, address, urls)
-
-url2 <- "http://www.bergerrealty.com/rental/search.html?week=27&nweek=1&beds=7&bath=4&ulimit=0&minprice=3501&maxprice=4001&sortby=1&limit=100&year=2018"
-
-geo2 <- read_html(url2) %>%
-  html_nodes(".geo") %>%
-  html_text() %>%
-  gsub(pattern = "July 07, 2018 to July 14, 2018", 
-       replacement = "") %>%
-  data_frame()
-
-price2 <- read_html(url2) %>%
-  html_nodes(".price") %>%
-  html_text() %>%
-  data_frame() 
-
-html2 <- htmlParse(url2) %>%
-  xpathSApply("//a/@href") %>%
-  data_frame()
-colnames(html2) <- "urls"
-
-html2 <- html2 %>%
-  filter(grepl("rental/[0-9]", urls)) %>%
-  filter(!grepl("plus", urls)) %>%
-  filter(!grepl("facebook", urls)) %>%
-  filter(!grepl("twitter", urls)) %>%
-  mutate(urls = paste0("http://www.bergerrealty.com", .$urls)) %>%
-  mutate(urls = gsub("&beds.*", "", .$urls))
-
-results2 <- cbind(geo2, price2) 
-colnames(results2) <-  c("address", "price")
-number <- sapply(strsplit(results2$address, " "), function(x) x[1])
-street <- sapply(strsplit(results2$address, " "), function(x) x[2])
-floor <- sapply(strsplit(results2$address, " "), function(x) x[4])
-
-results2 <- cbind(results2, number, street, floor, html2)
-
-results2$number <- as.integer(as.character(number))
-results2$block <- ifelse(nchar(results2$number) == 3, substr(results2$number, 1,1), substr(results2$number, 1,2)) %>%
-  as.integer()
-
-results2$price <- gsub(x = results2$price, pattern = "\\$", replacement = "") %>% as.numeric()
-
-results2 <- results2 %>%
-  select(block, number, street, floor, price, address, urls)
-
-url3 <- "http://www.bergerrealty.com/rental/search.html?week=27&nweek=1&beds=7&bath=4&ulimit=0&minprice=4001&maxprice=4401&sortby=1&limit=100&year=2018"
-
-geo3 <- read_html(url3) %>%
-  html_nodes(".geo") %>%
-  html_text() %>%
-  gsub(pattern = "July 07, 2018 to July 14, 2018", 
-       replacement = "") %>%
-  data_frame()
-
-price3 <- read_html(url3) %>%
-  html_nodes(".price") %>%
-  html_text() %>%
-  data_frame() 
-
-html3 <- htmlParse(url3) %>%
-  xpathSApply("//a/@href") %>%
-  data_frame()
-colnames(html3) <- "urls"
-
-html3 <- html3 %>%
-  filter(grepl("rental/[0-9]", urls)) %>%
-  filter(!grepl("plus", urls)) %>%
-  filter(!grepl("facebook", urls)) %>%
-  filter(!grepl("twitter", urls)) %>%
-  mutate(urls = paste0("http://www.bergerrealty.com", .$urls)) %>%
-  mutate(urls = gsub("&beds.*", "", .$urls))
-
-results3 <- cbind(geo3, price3) 
-colnames(results3) <-  c("address", "price")
-number <- sapply(strsplit(results3$address, " "), function(x) x[1])
-street <- sapply(strsplit(results3$address, " "), function(x) x[2])
-floor <- sapply(strsplit(results3$address, " "), function(x) x[4])
-
-results3 <- cbind(results3, number, street, floor, html3)
-
-results3$number <- as.integer(as.character(number))
-results3$block <- ifelse(nchar(results3$number) == 3, substr(results3$number, 1,1), substr(results3$number, 1,2)) %>%
-  as.integer()
-
-results3$price <- gsub(x = results3$price, pattern = "\\$", replacement = "") %>% as.numeric()
-
-results3 <- results3 %>%
-  select(block, number, street, floor, price, address, urls)
+results3 <- get_OC_rental_listings(week = week_num, 
+                                  year = year_num, 
+                                  min_price = 4000, 
+                                  max_price = 4401)
 
 results_all <- rbind(results, results2, results3) %>%
   unique() %>%
@@ -160,7 +97,7 @@ results_all <- rbind(results, results2, results3) %>%
   arrange(block, number) 
 
 results_all <- results_all %>%
-  mutate('link to listing' = paste0("<a href='", urls, "'>click to view</a>"))
+  mutate('link to listing' = paste0("<a href='", urls, "' target='_blank'>click to view</a>"))
 
 results_all %>%
   select(-urls) %>%
