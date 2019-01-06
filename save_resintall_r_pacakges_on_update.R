@@ -1,6 +1,6 @@
 #### Save R packages for reinstall when upgrading R
 #### Bill Petti
-#### September 2016
+#### September 2018
 #### code borrowed/adapted from https://www.datascienceriot.com/how-to-upgrade-r-without-losing-your-packages/kris/
 
 # set workding directory where you want the list of packages exported to and where you will access an existing list for reinstall
@@ -16,6 +16,7 @@ save(installedpkgs, file="installed_old.rda")
 # load list and reinstall missing packages (this might take a while...)
 # note that any package not installed via CRAN (e.g. GitHub) will not be resinstalled through this process
 
+setwd("/Users/williampetti/General-Code-Reference")
 load("installed_old.rda")
 tmp <- installed.packages()
 installedpkgs.new <- as.vector(tmp[is.na(tmp[,"Priority"]), 1])
@@ -23,6 +24,10 @@ missing <- setdiff(installedpkgs, installedpkgs.new)
 missing
 system.time(install.packages(missing))
 system.time(update.packages())
+
+# install known packages from alternative sources
+
+source("/Users/williampetti/General-Code-Reference/reinstall_packages_alter_sources.R")
 
 # check to see which packages are still missing
 
