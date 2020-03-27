@@ -28,7 +28,7 @@ edit_data_frame <- function(DF,
                      choices = c("ASCII", 
                                  "CSV", 
                                  "RDS"), 
-                     selected = "ASCII"), 
+                     selected = "CSV"), 
         br(), 
         textInput('file_name_input', 
                   label = "Enter the name you want to save the file as",
@@ -77,7 +77,7 @@ edit_data_frame <- function(DF,
                       useTypes = FALSE) %>%
         hot_cols(fixedColumnsLeft = 1) %>%
         hot_rows(fixedRowsTop = 1) %>%
-        hot_context_menu(allowRowEdit = TRUE, allowColEdit = TRUE)
+        hot_context_menu(allowRowEdit = TRUE)
     })
     
     ## Save 
