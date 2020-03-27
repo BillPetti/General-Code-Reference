@@ -2,7 +2,9 @@ library(rhandsontable)
 library(shiny)
 library(readr)
 
-edit_data_frame <- function(DF, outdir=getwd()){
+edit_data_frame <- function(DF, 
+                            open_browser = TRUE, 
+                            outdir=getwd()){
   # code is adapted from this post: 
   # http://stla.github.io/stlapblog/posts/shiny_editTable.html
   
@@ -133,6 +135,6 @@ edit_data_frame <- function(DF, outdir=getwd()){
   })
   
   ## run app 
-  runApp(list(ui=ui, server=server))
+  runApp(list(ui=ui, server=server), launch.browser = open_browser)
   return(invisible())
 }
