@@ -3,8 +3,7 @@ library(shiny)
 library(readr)
 
 edit_data_frame <- function(DF, 
-                            open_browser = TRUE, 
-                            outdir=getwd()){
+         outdir=getwd()){
   # code is adapted from this post: 
   # http://stla.github.io/stlapblog/posts/shiny_editTable.html
   
@@ -16,13 +15,17 @@ edit_data_frame <- function(DF,
         helpText("Right-click on the table to delete/insert rows or columns.", 
                  "Double-click on a cell to edit", 
                  "Values can be copied down and across cells by dragging."),
+  
+          h5("Add a column"),
+          div(class='row', 
+              div(class="col-sm-5", 
+                  uiOutput("ui_newcolname"),
+                  actionButton("addcolumn", "Add")),
+              div(class="col-sm-4", 
+                  radioButtons("newcolumntype", "Type", c("integer", "double", "character"))),
+              div(class="col-sm-3")),
         
-        # wellPanel(
-        #   h3("Table options"),
-        #   radioButtons("useType", "Use Data Types", c("TRUE", "FALSE"))
-        # ),
-        br(), 
-        
+        br(),
         radioButtons('fileType', 
                      label = "Save table as", 
                      choices = c("ASCII", 
@@ -44,12 +47,12 @@ edit_data_frame <- function(DF,
         actionButton("cancel", "Cancel last action"),
         
         br(), br(), 
-    
+        
         rHandsontableOutput("hot"),
         br()
-  )
-)
-))
+      )
+    )
+  ))
   
   server <- shinyServer(function(input, output) {
     
@@ -77,7 +80,8 @@ edit_data_frame <- function(DF,
                       useTypes = FALSE) %>%
         hot_cols(fixedColumnsLeft = 1) %>%
         hot_rows(fixedRowsTop = 1) %>%
-        hot_context_menu(allowRowEdit = TRUE)
+        hot_context_menu(allowRowEdit = TRUE, 
+                         allowColEdit = FALSE)
     })
     
     ## Save 
@@ -135,6 +139,7 @@ edit_data_frame <- function(DF,
   })
   
   ## run app 
-  runApp(list(ui=ui, server=server), launch.browser = open_browser)
+  runApp(list(ui=ui, server=server), 
+         launch.browser = TRUE)
   return(invisible())
 }
